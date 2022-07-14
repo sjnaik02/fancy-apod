@@ -2,14 +2,23 @@
   import { onMount } from "svelte";
   import { findDate } from "./functions";
   let data = '';
+  let pageIndex = 0;
   async function getApod(){
-    const res = await fetch(`https://apod.ellanan.com/api?date=${findDate()}`);
+    const res = await fetch(`https://apod.ellanan.com/api?date=${findDate(pageIndex)}`);
     data = await res.json();
     console.log(data);
     return data;
   }
   let promise = getApod();
   onMount(() => getApod());
+  function handleDecrement(){
+    pageIndex = pageIndex - 1;
+    promise = getApod();
+  }
+  function handleIncrement(){
+    pageIndex = pageIndex + 1;
+    promise = getApod();
+  }
 </script>
 
 {#await promise}
@@ -21,6 +30,8 @@
       <h1>Astronomy Picture of the Day</h1>
     </div>
     <p>{data.explanation}</p>
+    <button id="decrement" on:click={handleDecrement}> &lt; </button>
+    <button id="increment" on:click={handleIncrement} disabled={data.date == new Date().toISOString().slice(0,10)}> &gt; </button>
   </div>
 {/await}
 
@@ -79,6 +90,23 @@
     margin-bottom: 0;
     border-top: solid 1px #fff;
     border-left: solid 1px #fff;
+  }
+  #increment{
+    grid-column: 6;
+    grid-row: 7;
+  }
+  #decrement{
+    grid-column: 6;
+    grid-row: 6;
+  }
+  #increment, #decrement{
+    background-color: rgba(0, 0, 0, 0);
+    font-size: 2.5rem;
+    color: yellow;
+    outline: none;
+    border: 0;
+    text-align: end;
+    padding-right: 4rem;
   }
   
 </style>
