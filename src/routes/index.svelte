@@ -1,12 +1,12 @@
 <script>
   import { onMount } from "svelte";
   import { findDate } from "./functions";
+  import { LoadingScreen } from "../lib/LoadingScreen.svelte"
   let data = '';
   let pageIndex = 0;
   async function getApod(){
     const res = await fetch(`https://apod.ellanan.com/api?date=${findDate(pageIndex)}`);
     data = await res.json();
-    console.log(data);
     return data;
   }
   let promise = getApod();
@@ -21,21 +21,36 @@
   }
 </script>
 
+<svelte:head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk&display=swap" rel="stylesheet">
+</svelte:head>
 {#await promise}
-  <h2> Loading....</h2> 
+  <LoadingScreen/>
 {:then data} 
   <div class="wrapper" style="background-image: url({data.hdurl}), url({data.url});">
-    <h2>{data.title}</h2>
     <div class="title-bar">
       <h1>Astronomy Picture of the Day</h1>
     </div>
-    <p>{data.explanation}</p>
-    <button id="decrement" on:click={handleDecrement}> &lt; </button>
-    <button id="increment" on:click={handleIncrement} disabled={data.date == new Date().toISOString().slice(0,10)}> &gt; </button>
+    <div class="content">
+      <article>
+        <h2>{data.title}</h2>
+        <p>{data.explanation}</p>
+      </article>
+      <div class="nav-buttons">
+        <button id="decrement" on:click={handleDecrement}> &lt; </button>
+        <div class="line" />
+        <button id="increment" on:click={handleIncrement} disabled={data.date == new Date().toISOString().slice(0,10)}> &gt; </button>
+      </div>
+    </div>
   </div>
 {/await}
 
 <style>
+  :global(body){
+    background-color: #0e0e0e;
+  }
   .wrapper{
     height: 100vh;
     width: 100vw;
@@ -43,9 +58,7 @@
     background-position: center;
     background-size: cover;
     display: grid;
-    grid-template-rows: repeat(12, 1fr);
-    grid-template-columns: 5rem repeat(5, 1fr);
-    place-content: center;
+    grid-template-columns: 5rem 1fr;
   }
   .title-bar{
     padding: 0 1rem 0 1rem;
@@ -55,49 +68,53 @@
     align-items: center;
     justify-content: center;
     border-right: 1px solid white;
-    grid-row: 1 / span 13;
-    background-color: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background-color: rgba(0, 0, 0, 0.5);
+    grid-column: 1;
+  }
+  .content{
+    grid-column: 2;
+    height: 100vh;
+    width: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: grid;
+    grid-template-columns: 4fr 3fr 0.75fr;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-buttons{
+    grid-column: 3;
+    justify-self: right;
+    display: flex;
+    flex-direction: column;
+  }
+  .line{
+    background-color: white;
+    height: 1px;
+    width: 2.5rem;
   }
   h1{
-    font-family: monospace;
+    font-family: 'Anton', sans-serif;
     color: #fff;
     writing-mode: vertical-rl; 
     transform: rotate(180deg);
+    letter-spacing: 0.3rem;
+    font-size: 2.5rem;
   }
   h2{
-    margin: 1.5rem;
-    font-family: sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     color: #fff;
-    grid-row: 4 / span 2;
-    grid-column: 2 / span 2;
-    font-size: 3.75rem;
-    width: 75%;
+    font-size: 2rem;
   }
   p{
-    padding: 1rem;
     color: #fff;
-    font-family: monospace;
-    font-size: 16px;
-    text-align: center;
-    grid-column: 2 / span 5;
-    grid-row: 10 / 13;
-    overflow-y: scroll;
-    background-color: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    margin-bottom: 0;
-    border-top: solid 1px #fff;
-    border-left: solid 1px #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
   }
-  #increment{
-    grid-column: 6;
-    grid-row: 7;
-  }
-  #decrement{
-    grid-column: 6;
-    grid-row: 6;
+  article{
+    padding: 1.5rem;
+    grid-column: 2;
+    justify-self: center;
+    margin-left: 2rem;
   }
   #increment, #decrement{
     background-color: rgba(0, 0, 0, 0);
@@ -106,7 +123,8 @@
     outline: none;
     border: 0;
     text-align: end;
-    padding-right: 4rem;
+    padding-right: 3rem;
+    width: fit-content;
   }
   
 </style>
