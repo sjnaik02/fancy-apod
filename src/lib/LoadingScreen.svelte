@@ -5,9 +5,10 @@
 <style>
   h1{
     font-family: 'Anton', serif;
+    color: white;
   }
   .load-wrapper{
-    background-color: darkslategrey;
+    background-color: #0e0e0e;
     height: 100vh;
     width: 100vw;
     display: flex;
