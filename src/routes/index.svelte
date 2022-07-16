@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { findDate } from "./functions";
-  import { LoadingScreen } from "../lib/LoadingScreen.svelte"
+  import LoadingScreen from "$lib/LoadingScreen.svelte"
   let data = '';
   let pageIndex = 0;
   async function getApod(){
@@ -19,6 +19,14 @@
     pageIndex = pageIndex + 1;
     promise = getApod();
   }
+  function handleKeydown(e){
+    if(e.key == "ArrowLeft"){
+      handleDecrement();
+    } else if (e.key == "ArrowRight"){
+      handleIncrement();
+    }
+  }
+  $: console.log(data);
 </script>
 
 <svelte:head>
@@ -26,6 +34,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk&display=swap" rel="stylesheet">
 </svelte:head>
+<svelte:window on:keydown={handleKeydown}/>
 {#await promise}
   <LoadingScreen/>
 {:then data} 
@@ -80,6 +89,7 @@
     grid-template-columns: 4fr 3fr 0.75fr;
     align-items: center;
     justify-content: center;
+    grid-template-rows: 100vh;
   }
   .nav-buttons{
     grid-column: 3;
